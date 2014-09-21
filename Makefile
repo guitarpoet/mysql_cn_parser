@@ -108,35 +108,27 @@ all: $(PROGRAM)
 #------------------------------------------
 
 %.d:%.c
-	@echo -n $(dir $<) > $@
 	@$(DEPEND.d) $< >> $@
 
 %.d:%.C
-	@echo -n $(dir $<) > $@
 	@$(DEPEND.d) $< >> $@
 
 %.d:%.cc
-	@echo -n $(dir $<) > $@
 	@$(DEPEND.d) $< >> $@
 
 %.d:%.cpp
-	@echo -n $(dir $<) > $@
 	@$(DEPEND.d) $< >> $@
 
 %.d:%.CPP
-	@echo -n $(dir $<) > $@
 	@$(DEPEND.d) $< >> $@
 
 %.d:%.c++
-	@echo -n $(dir $<) > $@
 	@$(DEPEND.d) $< >> $@
 
 %.d:%.cp
-	@echo -n $(dir $<) > $@
 	@$(DEPEND.d) $< >> $@
 
 %.d:%.cxx
-	@echo -n $(dir $<) > $@
 	@$(DEPEND.d) $< >> $@
 
 # Rules for generating object files (.o).
