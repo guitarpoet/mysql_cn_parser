@@ -1,13 +1,15 @@
+#include "common.h"
 #include "mysql_cn_parser.h"
 
-int main() {
-	std::cout << "Hello" << std::endl;
-	INIReader reader("test/test.ini");
 
-	if(reader.ParseError() < 0) {
+int main() {
+	reader = new INIReader("test/test.ini");
+	Logger logger;
+	if(reader->ParseError() < 0) {
         std::cout << "Can't load 'test.ini'\n";
 		return 1;
 	}
-
-	std::cout << reader.Get("user", "email", "default_user") << std::endl;
+	logger.log("Hello %s", "Jack");
+	std::cout << reader->Get("user", "email", "default_user") << std::endl;
+	delete reader;
 }
