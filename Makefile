@@ -81,8 +81,8 @@ endif
 ifeq ($(SRCDIRS),)
   SRCDIRS = .
 endif
-SOURCES = $(foreach d,$(SRCDIRS),$(wildcard $(addprefix $(d)/*,$(SRCEXTS))))
-HEADERS = $(foreach d,$(SRCDIRS),$(wildcard $(addprefix $(d)/*,$(HDREXTS))))
+SOURCES = $(shell ls src/*.c*)
+HEADERS = $(shell ls src/*.h)
 SRC_CXX = $(filter-out %.c,$(SOURCES))
 OBJS    = $(addsuffix .o, $(basename $(SOURCES)))
 DEPS    = $(OBJS:.o=.d)
@@ -102,34 +102,10 @@ LINK.cxx    = $(CXX) $(MY_CFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS)
 # Delete the default suffixes
 .SUFFIXES:
 
+run: all
+	@./${PROGRAM}
+
 all: $(PROGRAM)
-
-# Rules for creating dependency files (.d).
-#------------------------------------------
-
-%.d:%.c
-	@$(DEPEND.d) $< >> $@
-
-%.d:%.C
-	@$(DEPEND.d) $< >> $@
-
-%.d:%.cc
-	@$(DEPEND.d) $< >> $@
-
-%.d:%.cpp
-	@$(DEPEND.d) $< >> $@
-
-%.d:%.CPP
-	@$(DEPEND.d) $< >> $@
-
-%.d:%.c++
-	@$(DEPEND.d) $< >> $@
-
-%.d:%.cp
-	@$(DEPEND.d) $< >> $@
-
-%.d:%.cxx
-	@$(DEPEND.d) $< >> $@
 
 # Rules for generating object files (.o).
 #----------------------------------------
@@ -169,20 +145,9 @@ ctags: $(HEADERS) $(SOURCES)
 
 # Rules for generating the executable.
 #-------------------------------------
-$(PROGRAM):$(OBJS)
-ifeq ($(SRC_CXX),)              # C program
-	$(LINK.c)   $(OBJS) $(MY_LIBS) -o $@
-	@echo Type ./$@ to execute the program.
-else                            # C++ program
-	$(LINK.cxx) $(OBJS) $(MY_LIBS) -o $@
-	@echo Type ./$@ to execute the program.
-endif
-
-ifndef NODEP
-ifneq ($(DEPS),)
-  sinclude $(DEPS)
-endif
-endif
+$(PROGRAM):${HEADERS} ${SOURCES} ${OBJS}
+	${COMPILE.cxx} ${SOURCES}
+	${LINK.cxx} ${OBJS} -o ${PROGRAM}
 
 clean:
 	$(RM) $(OBJS) $(PROGRAM) $(PROGRAM).exe
@@ -190,40 +155,5 @@ clean:
 distclean: clean
 	$(RM) $(DEPS) TAGS
 
-# Show help.
-help:
-	@echo 'mysql_cn_parser version 0.1'
-	@echo 'Copyright (C) 2014 Jack <guitarpoet@gmail.com>'
-	@echo
-	@echo 'Usage: make [TARGET]'
-	@echo 'TARGETS:'
-	@echo '  all       (=make) compile and link.'
-	@echo '  NODEP=yes make without generating dependencies.'
-	@echo '  objs      compile only (no linking).'
-	@echo '  tags      create tags for Emacs editor.'
-	@echo '  ctags     create ctags for VI editor.'
-	@echo '  clean     clean objects and the executable file.'
-	@echo '  distclean clean objects, the executable and dependencies.'
-	@echo '  show      show variables (for debug use only).'
-	@echo '  help      print this message.'
-	@echo
-	@echo 'Report bugs to <whyglinux AT gmail DOT com>.'
-
-# Show variables (for debug use only.)
-show:
-	@echo 'PROGRAM     :' $(PROGRAM)
-	@echo 'SRCDIRS     :' $(SRCDIRS)
-	@echo 'HEADERS     :' $(HEADERS)
-	@echo 'SOURCES     :' $(SOURCES)
-	@echo 'SRC_CXX     :' $(SRC_CXX)
-	@echo 'OBJS        :' $(OBJS)
-	@echo 'DEPS        :' $(DEPS)
-	@echo 'DEPEND      :' $(DEPEND)
-	@echo 'COMPILE.c   :' $(COMPILE.c)
-	@echo 'COMPILE.cxx :' $(COMPILE.cxx)
-	@echo 'link.c      :' $(LINK.c)
-	@echo 'link.cxx    :' $(LINK.cxx)
-
 ## End of the Makefile ##  Suggestions are welcome  ## All rights reserved ##
 #############################################################################
-
