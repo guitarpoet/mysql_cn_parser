@@ -17,7 +17,7 @@
 MY_CFLAGS =
 
 # The linker options.
-MY_LIBS   =
+MY_LIBS   = -lmmseg
 
 # The pre-processor options used by the cpp (man cpp for more).
 CPPFLAGS  = -Wall
@@ -147,7 +147,7 @@ ctags: $(HEADERS) $(SOURCES)
 #-------------------------------------
 $(PROGRAM):${HEADERS} ${SOURCES} ${OBJS}
 	${COMPILE.cxx} ${SOURCES}
-	${LINK.cxx} ${OBJS} -o ${PROGRAM}
+	${LINK.cxx} ${OBJS} -o ${PROGRAM} ${MY_LIBS}
 
 clean:
 	$(RM) $(OBJS) $(PROGRAM) $(PROGRAM).exe
