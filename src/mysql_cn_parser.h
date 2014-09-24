@@ -56,7 +56,7 @@ class Parser {
 
 	private:
 		bool isStopWord(std::string item) {
-			return std::find(stopwords->begin(), stopwords->end(), item) != stopwords->end();
+			return std::binary_search(stopwords->begin(), stopwords->end(), item);
 		}
 
 		void readStopWords(std::string stopWordsFile) {
@@ -65,6 +65,7 @@ class Parser {
 			std::copy(std::istream_iterator<std::string>(_file),
 				std::istream_iterator<std::string>(),
 				std::back_inserter(*stopwords));
+			std::sort(stopwords->begin(), stopwords->end());
 		}
 		bool filterToken(const char* token, u2 len, u2 symlen);
 

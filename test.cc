@@ -25,4 +25,9 @@ int main() {
 	std::cout << isStopWord("'") << std::endl;
 	std::cout << isStopWord("<") << std::endl;
 	delete stopwords;
+	char result[16];
+	sprintf(result, "%*.*s", 1, 1, " asdf");
+	std::cout << "--" << result << "--" << std::endl;
+	if(strncmp(result, " ", sizeof(" ") - 1) == 0)
+		std::cout << "Haha" << std::endl;
 }
