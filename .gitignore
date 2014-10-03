@@ -1,6 +1,8 @@
 *.o
 *.d
+*.so
 *.swp
 *.swo
 a.out
 TAGS
+./mysql_cn_parser

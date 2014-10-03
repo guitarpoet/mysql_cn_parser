@@ -62,7 +62,7 @@ class Logger {
 				std::cout << time_buffer << "[" << level << "] " << str << std::endl;
 			}
 			std::ofstream file;
-			file.open(reader->Get("logger", "file", "/tmp/mysql_cn_parser.log"),  std::ios::out | std::ios::binary | std::ios::app);
+			file.open(reader->Get("logger", "file", "/tmp/mysql_cn_parser.log").c_str(),  std::ios::out | std::ios::binary | std::ios::app);
 			file << time_buffer << "[" << level << "] " << str << std::endl;
 			file.close();
 		}

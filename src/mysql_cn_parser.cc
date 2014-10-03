@@ -1,15 +1,68 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "mysql_cn_parser.h"
+#include <cassert>
 
 using namespace __gnu_cxx;
+
+void set_status(const char* status) {
+    std::strcpy(current_status, status);
+}
 
 bool str_eql(const char* str1, const char* str2) {
 	return strncmp(str1, str2, sizeof(str2) - 1) == 0;
 }
 
+int mysql_cn_parser_init(MYSQL_FTPARSER_PARAM *param __attribute__((unused))) {
+	/*
+    set_status("Initializing using dictionary...");
+	reader = read_config();
+	parser = new Parser(reader);
+	parser->logger->log("Parser initialize complete");
+	*/
+    return 0;
+}
+
+int mysql_cn_parser_deinit(MYSQL_FTPARSER_PARAM *param __attribute__((unused))) {
+	/*
+	parser->logger->log("Destroying parser...");
+	delete parser;
+	delete reader;
+	*/
+    return 0;
+}
+
+int mysql_cn_parser_parse(MYSQL_FTPARSER_PARAM *param) {
+	/*
+    set_status("Tokenizing the document string");
+	assert(parser != NULL);
+	parser->logger->log("Tokenizing the document");
+
+	TOKEN_TYPE t;
+	char tok[1024];
+	parser->set(param->doc, param->length);
+    while((t = parser->next(tok))) {
+		if(t == TOKEN_TYPE_TOKEN) {
+			MYSQL_FTPARSER_BOOLEAN_INFO bool_info = {
+				FT_TOKEN_WORD, // Token type
+				0, // Yes No - Use no by default
+				0, // Weight Adjust - No adjust by default
+				0, // Weight Adjust Sign - No sign
+				0, // Trunk
+	//          pos, // Position
+				' ', // Prev
+				0 // Quote
+			};
+			param->mysql_add_word(param, tok, strlen(tok), &bool_info);
+		}
+    }
+	*/
+
+    return 0;
+}
+
 int main() {
-	auto_ptr<INIReader> reader_ptr(read_config());
+	std::auto_ptr<INIReader> reader_ptr(read_config());
 	reader = reader_ptr.get();
 
 	if(!reader)
@@ -31,7 +84,7 @@ int main() {
     buffer[length] = 0;
     delete is;
 
-	auto_ptr<Parser> parser_ptr(new Parser(reader));
+	std::auto_ptr<Parser> parser_ptr(new Parser(reader));
 	Parser* parser = parser_ptr.get();
 	parser->set(buffer, length);
 

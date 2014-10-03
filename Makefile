@@ -20,10 +20,14 @@ MY_CFLAGS =
 MY_LIBS   = -lmmseg
 
 # The pre-processor options used by the cpp (man cpp for more).
-CPPFLAGS  = -Wall
+CPPFLAGS  = -Wall -I/opt/local/include/mysql55/mysql -Wno-deprecated -DMYSQL_DYNAMIC_PLUGIN 
+
+MYSQL_PLUGIN_FOLDER = /opt/local/lib/mysql55/plugin/
 
 # The options used in linking as well as in any direct use of ld.
 LDFLAGS   =
+
+SHARED_PLUGIN_FLAGS := -shared -fPIC
 
 # The directories in which source files reside.
 # If not specified, only the current directory will be serached.
@@ -32,6 +36,8 @@ SRCDIRS   = src
 # The executable file name.
 # If not specified, current directory name or `a.out' will be used.
 PROGRAM   = mysql_cn_parser
+
+PLUGIN    = mysql_cn_parser.so
 
 ## Implicit Section: change the following only when necessary.
 ##==========================================================================
@@ -105,6 +111,14 @@ LINK.cxx    = $(CXX) $(MY_CFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS)
 run: all
 	@./${PROGRAM}
 
+install: ${PLUGIN}
+	@sudo cp ${PLUGIN} ${MYSQL_PLUGIN_FOLDER}
+
+test:
+	@sudo /opt/local/share/mysql5/mysql/mysql.server restart
+	@mysql -u root test < test/test.sql
+	@mysql -u root test -e 'select match(text) against("其他"), text from fulltext_test'
+
 all: $(PROGRAM)
 
 # Rules for generating object files (.o).
@@ -149,8 +163,12 @@ $(PROGRAM):${HEADERS} ${SOURCES} ${OBJS}
 	${COMPILE.cxx} ${SOURCES}
 	${LINK.cxx} ${OBJS} -o ${PROGRAM} ${MY_LIBS}
 
+$(PLUGIN):${HEADERS} ${SOURCES} ${OBJS}
+	${COMPILE.cxx} ${SOURCES}
+	${LINK.cxx} ${OBJS} ${SHARED_PLUGIN_FLAGS} -o ${PLUGIN} ${MY_LIBS}
+
 clean:
-	$(RM) $(OBJS) $(PROGRAM) $(PROGRAM).exe
+	$(RM) $(OBJS) ${PLUGIN} $(PROGRAM) $(PROGRAM).exe
 
 distclean: clean
 	$(RM) $(DEPS) TAGS

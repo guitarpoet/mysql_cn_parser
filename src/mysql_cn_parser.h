@@ -6,9 +6,51 @@
 #define TOKEN_TYPE_LINE_BREAK "LINE_BREAK"
 
 #include <iostream>
+#include <stdlib.h>
+#include <ctype.h>
+#include <iostream>
 #include <mmseg/Segmenter.h>
 #include <mmseg/SegmenterManager.h>
+#include <mysql/plugin.h>
 #include "common.h"
+
+int mysql_cn_parser_parse(MYSQL_FTPARSER_PARAM *param);
+int mysql_cn_parser_init(MYSQL_FTPARSER_PARAM *param __attribute__((unused)));
+int mysql_cn_parser_deinit(MYSQL_FTPARSER_PARAM *param __attribute__((unused)));
+
+struct st_mysql_ftparser mysql_cn_parser_descriptor =
+{
+  MYSQL_FTPARSER_INTERFACE_VERSION,     /* interface version      */
+  mysql_cn_parser_parse,                /* parsing function       */
+  (mysql_cn_parser_init),               /* parser init function   */
+  (mysql_cn_parser_deinit)              /* parser deinit function */
+};
+
+char current_status[255];
+long number_of_calls = 0;
+
+struct st_mysql_show_var mysql_cn_status[] =
+{
+  {"mysql_cn_status", (char *)&current_status, SHOW_CHAR},
+  {"mysql_cn_called", (char *)&number_of_calls, SHOW_LONG}
+};
+
+mysql_declare_plugin(mysql_cn_parser)
+{
+  MYSQL_FTPARSER_PLUGIN,                    /* type                            */
+  &mysql_cn_parser_descriptor,              /* descriptor                      */
+  "mysql_cn_parser",                        /* name                            */
+  "Jack <guitarpoet@gmail.com>",            /* author                          */
+  "Simple Chinese MMSEG Parser",            /* description                     */
+  PLUGIN_LICENSE_GPL,                       /* plugin license                  */
+  (int (*)(void*))mysql_cn_parser_init,     /* init function (when loaded)     */
+  (int (*)(void*))mysql_cn_parser_deinit,   /* deinit function (when unloaded) */
+  0x0001,                                   /* version                         */
+  mysql_cn_status,                          /* status variables                */
+  NULL,                                     /* system variables                */
+  NULL
+}
+mysql_declare_plugin_end;
 
 /**
  * The initialize function for initialize the parser using configurations.
@@ -61,7 +103,7 @@ class Parser {
 
 		void readStopWords(std::string stopWordsFile) {
 			stopwords = new std::vector<std::string>();
-			std::ifstream _file(stopWordsFile);
+			std::ifstream _file(stopWordsFile.c_str());
 			std::copy(std::istream_iterator<std::string>(_file),
 				std::istream_iterator<std::string>(),
 				std::back_inserter(*stopwords));
@@ -86,6 +128,7 @@ class Parser {
 			std::string stopWordsFile = reader->Get("parser", "stop_words", "stopwords.txt");
 			logger->log("Reading stop words from file %s", "INFO", stopWordsFile.c_str());
 			readStopWords(stopWordsFile);
+			logger->log("Stop words file %s readed", "INFO", stopWordsFile.c_str());
 			inited = true;
 		}
 
@@ -107,5 +150,7 @@ class Parser {
 		bool peek(token_peek &peek);
 		TOKEN_TYPE next(char* result);
 };
+
+Parser* parser;
 
 #endif
