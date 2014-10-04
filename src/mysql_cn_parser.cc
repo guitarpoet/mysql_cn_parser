@@ -35,16 +35,9 @@ int mysql_cn_parser_parse(MYSQL_FTPARSER_PARAM *param) {
 	TOKEN_TYPE t;
 	char tok[1024];
 	parser->set(param->doc, param->length);
-    while((t = parser->next(tok))) {
-		if(t == TOKEN_TYPE_TOKEN) {
-			switch(param->mode) {
-				case MYSQL_FTPARSER_SIMPLE_MODE:
-					break;
-				case MYSQL_FTPARSER_WITH_STOPWORDS:
-					break;
-				case MYSQL_FTPARSER_FULL_BOOLEAN_INFO:
-					break;
-			}
+	while((t = parser->next(tok))) {
+		MYSQL_FTPARSER_BOOLEAN_INFO *info = NULL;
+		if(param->mode == MYSQL_FTPARSER_WITH_STOPWORDS || t == TOKEN_TYPE_TOKEN) {
 			MYSQL_FTPARSER_BOOLEAN_INFO bool_info = {
 				FT_TOKEN_WORD, // Token type
 				0, // Yes No - Use no by default
@@ -55,12 +48,24 @@ int mysql_cn_parser_parse(MYSQL_FTPARSER_PARAM *param) {
 				' ', // Prev
 				0 // Quote
 			};
-			int ret = param->mysql_add_word(param, tok, strlen(tok), &bool_info);
-			std::cout << "Adding Token [" << tok << "] with length " << strlen(tok)
-			   << " getting result " << ret << std::endl;
+			if(param->mode == MYSQL_FTPARSER_FULL_BOOLEAN_INFO) {
+				// TODO: Add BOOLEAN support
+				info = &bool_info;
+			}
+			param->mysql_add_word(param, tok, strlen(tok), info);
 		}
-    }
-
+		switch(param->mode) {
+			case MYSQL_FTPARSER_SIMPLE_MODE: // Netural search mode
+				std::cout << "Got Token [" << tok << "] In SIMPLE Mode with length " << strlen(tok) << std::endl;
+				break;
+			case MYSQL_FTPARSER_WITH_STOPWORDS:
+				std::cout << "Got Token [" << tok << "] In WITH_STOPWORDS Mode with length " << strlen(tok) << std::endl;
+				break;
+			case MYSQL_FTPARSER_FULL_BOOLEAN_INFO:
+				std::cout << "Got Token [" << tok << "] In FULL_BOOLEAN Mode with length " << strlen(tok) << std::endl;
+				break;
+		}
+	}
 
     return 0;
 }
@@ -94,6 +99,8 @@ int main() {
 	char result[1024];
 	TOKEN_TYPE t;
 	while((t = parser->next(result))) {
+		if(t == TOKEN_TYPE_STOP_WORD)
+			continue;
 		if(t == TOKEN_TYPE_TOKEN)
 			std::cout << result << "/x ";
 		else
@@ -126,30 +133,28 @@ bool Parser::filterToken(const char* token, u2 len, u2 symlen) {
 }
 
 bool Parser::peek(token_peek &peek) {
-	while(true) {
-		u2 len = 0, symlen = 0;
-		char* tok = (char*)seg->peekToken(len, symlen);
-		seg->popToken(len);
+	u2 len = 0, symlen = 0;
+	
+	// Getting the token
+	char* tok = (char*)seg->peekToken(len, symlen);
+	seg->popToken(len);
 
-		if(!tok || !*tok || !len) // We have reach the end.
-			return false;
+	if(!tok || !*tok || !len) // We have reach the end.
+		return false;
 
-		// If we can still get the token
+	// If we can still get the token
+	peek.tok = tok;	
+	peek.len = len;
+	peek.symlen = symlen;
+	if(*tok == '\r' || *tok == '\n') { // The line break should be ignored
+		peek.type = TOKEN_TYPE_LINE_BREAK;
+	}
+	else {
 		if(!filterToken(tok, len, symlen)) {
-			if(*tok == '\r' || *tok == '\n') { // The line break should be ignored
-				peek.type = TOKEN_TYPE_LINE_BREAK;
-			}
-			else
-				peek.type = TOKEN_TYPE_TOKEN;
-			// We have found the token, let's stop the peek
-			peek.tok = tok;	
-			peek.len = len;
-			peek.symlen = symlen;
-			break;
+			peek.type = TOKEN_TYPE_TOKEN;
 		}
 		else {
-			// Then, peek again
-			continue;
+			peek.type = TOKEN_TYPE_STOP_WORD;
 		}
 	}
 	return true;
