@@ -14,35 +14,37 @@ bool str_eql(const char* str1, const char* str2) {
 }
 
 int mysql_cn_parser_init(MYSQL_FTPARSER_PARAM *param __attribute__((unused))) {
-	/*
     set_status("Initializing using dictionary...");
 	reader = read_config();
 	parser = new Parser(reader);
 	parser->logger->log("Parser initialize complete");
-	*/
     return 0;
 }
 
 int mysql_cn_parser_deinit(MYSQL_FTPARSER_PARAM *param __attribute__((unused))) {
-	/*
 	parser->logger->log("Destroying parser...");
 	delete parser;
 	delete reader;
-	*/
     return 0;
 }
 
 int mysql_cn_parser_parse(MYSQL_FTPARSER_PARAM *param) {
-	/*
-    set_status("Tokenizing the document string");
-	assert(parser != NULL);
-	parser->logger->log("Tokenizing the document");
+    set_status("Tokenizing the string");
+	parser->logger->log("Tokenizing the string");
 
 	TOKEN_TYPE t;
 	char tok[1024];
 	parser->set(param->doc, param->length);
     while((t = parser->next(tok))) {
 		if(t == TOKEN_TYPE_TOKEN) {
+			switch(param->mode) {
+				case MYSQL_FTPARSER_SIMPLE_MODE:
+					break;
+				case MYSQL_FTPARSER_WITH_STOPWORDS:
+					break;
+				case MYSQL_FTPARSER_FULL_BOOLEAN_INFO:
+					break;
+			}
 			MYSQL_FTPARSER_BOOLEAN_INFO bool_info = {
 				FT_TOKEN_WORD, // Token type
 				0, // Yes No - Use no by default
@@ -53,14 +55,15 @@ int mysql_cn_parser_parse(MYSQL_FTPARSER_PARAM *param) {
 				' ', // Prev
 				0 // Quote
 			};
-			param->mysql_add_word(param, tok, strlen(tok), &bool_info);
+			int ret = param->mysql_add_word(param, tok, strlen(tok), &bool_info);
+			std::cout << "Adding Token [" << tok << "] with length " << strlen(tok)
+			   << " getting result " << ret << std::endl;
 		}
     }
-	*/
+
 
     return 0;
 }
-
 int main() {
 	std::auto_ptr<INIReader> reader_ptr(read_config());
 	reader = reader_ptr.get();

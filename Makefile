@@ -114,7 +114,7 @@ run: all
 install: ${PLUGIN}
 	@sudo cp ${PLUGIN} ${MYSQL_PLUGIN_FOLDER}
 
-test:
+plugin_test:
 	@sudo /opt/local/share/mysql5/mysql/mysql.server restart
 	@mysql -u root test < test/test.sql
 	@mysql -u root test -e 'select match(text) against("其他"), text from fulltext_test'

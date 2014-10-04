@@ -4,6 +4,7 @@
 #define TOKEN_TYPE const char*
 #define TOKEN_TYPE_TOKEN "TOKEN"
 #define TOKEN_TYPE_LINE_BREAK "LINE_BREAK"
+#define TOKEN_TYPE_STOP_WORD "STOP_WORD"
 
 #include <iostream>
 #include <stdlib.h>
@@ -46,7 +47,7 @@ mysql_declare_plugin(mysql_cn_parser)
   (int (*)(void*))mysql_cn_parser_init,     /* init function (when loaded)     */
   (int (*)(void*))mysql_cn_parser_deinit,   /* deinit function (when unloaded) */
   0x0001,                                   /* version                         */
-  mysql_cn_status,                          /* status variables                */
+  NULL,                          /* status variables                */
   NULL,                                     /* system variables                */
   NULL
 }
