@@ -37,7 +37,7 @@ int mysql_cn_parser_parse(MYSQL_FTPARSER_PARAM *param) {
 	parser->set(param->doc, param->length);
 	while((t = parser->next(tok))) {
 		MYSQL_FTPARSER_BOOLEAN_INFO *info = NULL;
-		if(param->mode == MYSQL_FTPARSER_WITH_STOPWORDS || t == TOKEN_TYPE_TOKEN) {
+		if(param->mode != MYSQL_FTPARSER_SIMPLE_MODE || t == TOKEN_TYPE_TOKEN) {
 			MYSQL_FTPARSER_BOOLEAN_INFO bool_info = {
 				FT_TOKEN_WORD, // Token type
 				0, // Yes No - Use no by default
@@ -50,20 +50,22 @@ int mysql_cn_parser_parse(MYSQL_FTPARSER_PARAM *param) {
 			};
 			if(param->mode == MYSQL_FTPARSER_FULL_BOOLEAN_INFO) {
 				// TODO: Add BOOLEAN support
+				if(t == TOKEN_TYPE_STOP_WORD)
+					bool_info.type = FT_TOKEN_STOPWORD;
 				info = &bool_info;
 			}
 			param->mysql_add_word(param, tok, strlen(tok), info);
-		}
-		switch(param->mode) {
-			case MYSQL_FTPARSER_SIMPLE_MODE: // Netural search mode
-				std::cout << "Got Token [" << tok << "] In SIMPLE Mode with length " << strlen(tok) << std::endl;
-				break;
-			case MYSQL_FTPARSER_WITH_STOPWORDS:
-				std::cout << "Got Token [" << tok << "] In WITH_STOPWORDS Mode with length " << strlen(tok) << std::endl;
-				break;
-			case MYSQL_FTPARSER_FULL_BOOLEAN_INFO:
-				std::cout << "Got Token [" << tok << "] In FULL_BOOLEAN Mode with length " << strlen(tok) << std::endl;
-				break;
+			switch(param->mode) {
+				case MYSQL_FTPARSER_SIMPLE_MODE: // Netural search mode
+					std::cout << "Got Token [" << tok << "] In SIMPLE Mode with length " << strlen(tok) << std::endl;
+					break;
+				case MYSQL_FTPARSER_WITH_STOPWORDS:
+					std::cout << "Got Token [" << tok << "] In WITH_STOPWORDS Mode with length " << strlen(tok) << std::endl;
+					break;
+				case MYSQL_FTPARSER_FULL_BOOLEAN_INFO:
+					std::cout << "Got Token [" << tok << "] In FULL_BOOLEAN Mode with length " << strlen(tok) << std::endl;
+					break;
+			}
 		}
 	}
 
