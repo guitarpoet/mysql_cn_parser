@@ -5,4 +5,4 @@
 *.swo
 a.out
 TAGS
-./mysql_cn_parser
+mysql_cn_parser
