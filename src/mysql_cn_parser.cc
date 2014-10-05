@@ -34,6 +34,8 @@ int mysql_cn_parser_parse(MYSQL_FTPARSER_PARAM *param) {
 
 	TOKEN_TYPE t;
 	char tok[1024];
+	char* operator_type = NULL;
+
 	parser->set(param->doc, param->length);
 	while((t = parser->next(tok))) {
 		MYSQL_FTPARSER_BOOLEAN_INFO *info = NULL;
@@ -49,12 +51,81 @@ int mysql_cn_parser_parse(MYSQL_FTPARSER_PARAM *param) {
 				0 // Quote
 			};
 			if(param->mode == MYSQL_FTPARSER_FULL_BOOLEAN_INFO) {
-				// TODO: Add BOOLEAN support
-				if(t == TOKEN_TYPE_STOP_WORD)
+				// Only in full boolean mode, will test if the token is the operator
+
+				// Testing the token if the token is the operator
+				if(str_eql(tok, OPERATOR_TYPE_PLUS)) {
+					operator_type = OPERATOR_TYPE_PLUS;
+					continue;
+				}
+
+				if(str_eql(tok, OPERATOR_TYPE_MINUS)) {
+					operator_type = OPERATOR_TYPE_MINUS;
+					continue;
+				}
+
+				if(str_eql(tok, OPERATOR_TYPE_GT)) {
+					operator_type = OPERATOR_TYPE_GT;
+					continue;
+				}
+
+				if(str_eql(tok, OPERATOR_TYPE_LT)) {
+					operator_type = OPERATOR_TYPE_LT;
+					continue;
+				}
+
+				if(str_eql(tok, OPERATOR_TYPE_TILDE)) {
+					operator_type = OPERATOR_TYPE_TILDE;
+					continue;
+				}
+
+				if(str_eql(tok, OPERATOR_TYPE_ASTERISK)) {
+					operator_type = OPERATOR_TYPE_ASTERISK;
+					continue;
+				}
+
+				// Find the word's type first
+				if(str_eql(tok, OPERATOR_TYPE_LP)) {
+					bool_info.type = FT_TOKEN_LEFT_PAREN;
+				} else if(str_eql(tok, OPERATOR_TYPE_RP)) {
+					bool_info.type = FT_TOKEN_RIGHT_PAREN;
+				} else if(t == TOKEN_TYPE_STOP_WORD) {
 					bool_info.type = FT_TOKEN_STOPWORD;
+				}
+
+				// Then adjusting the bool info now
+				if(operator_type) {
+					if(str_eql(operator_type, OPERATOR_TYPE_PLUS)) {
+						bool_info.yesno = 1; // This word is must have
+					}
+
+					if(str_eql(operator_type, OPERATOR_TYPE_MINUS)) {
+						bool_info.yesno = -1; // This word is must not have
+					}
+
+					if(str_eql(operator_type, OPERATOR_TYPE_GT)) {
+						bool_info.weight_adjust = 1; // This word will be increase the relavance of the search
+					}
+
+					if(str_eql(operator_type, OPERATOR_TYPE_LT)) {
+						bool_info.weight_adjust = -1; // This word will be decrease the relavance of the search
+					}
+
+					if(str_eql(operator_type, OPERATOR_TYPE_TILDE)) {
+						bool_info.wasign = -1;
+					}
+
+					if(str_eql(operator_type, OPERATOR_TYPE_ASTERISK)) {
+						bool_info.trunc = 1;
+					}
+				}
+
 				info = &bool_info;
 			}
 			param->mysql_add_word(param, tok, strlen(tok), info);
+			if(operator_type) {
+				std::cout << "Token [" << tok << "] has operator of " << operator_type << std::endl;
+			}
 			switch(param->mode) {
 				case MYSQL_FTPARSER_SIMPLE_MODE: // Netural search mode
 					std::cout << "Got Token [" << tok << "] In SIMPLE Mode with length " << strlen(tok) << std::endl;
@@ -66,12 +137,18 @@ int mysql_cn_parser_parse(MYSQL_FTPARSER_PARAM *param) {
 					std::cout << "Got Token [" << tok << "] In FULL_BOOLEAN Mode with length " << strlen(tok) << std::endl;
 					break;
 			}
+			operator_type = NULL; // Reset the operator type after the operation
 		}
 	}
 
     return 0;
 }
-int main() {
+int main(int argc, char *argv[]) {
+	std::string data = "test/data.txt";
+	if(argc >= 2) {
+		data = argv[1];
+	}
+	std::cout << "File name is " << data << std::endl;
 	std::auto_ptr<INIReader> reader_ptr(read_config());
 	reader = reader_ptr.get();
 
@@ -81,7 +158,7 @@ int main() {
 	Logger logger;
 
 	logger.log("Reading the testing file.");
-    std::istream *is = new std::ifstream("test/data.txt", std::ifstream::in | std::ifstream::binary);
+    std::istream *is = new std::ifstream(data, std::ifstream::in | std::ifstream::binary);
     if(! *is)
         return -1;
 
@@ -101,8 +178,10 @@ int main() {
 	char result[1024];
 	TOKEN_TYPE t;
 	while((t = parser->next(result))) {
-		if(t == TOKEN_TYPE_STOP_WORD)
+		if(t == TOKEN_TYPE_STOP_WORD) {
+			std::cout << result << "/s ";
 			continue;
+		}
 		if(t == TOKEN_TYPE_TOKEN)
 			std::cout << result << "/x ";
 		else

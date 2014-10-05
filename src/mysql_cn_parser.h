@@ -6,6 +6,20 @@
 #define TOKEN_TYPE_LINE_BREAK "LINE_BREAK"
 #define TOKEN_TYPE_STOP_WORD "STOP_WORD"
 
+//-----------------------------------------------------------------------------------------
+//
+// The operator types
+//
+//-----------------------------------------------------------------------------------------
+#define OPERATOR_TYPE_PLUS "+"
+#define OPERATOR_TYPE_MINUS "-"
+#define OPERATOR_TYPE_GT ">"
+#define OPERATOR_TYPE_LT "<"
+#define OPERATOR_TYPE_LP "("
+#define OPERATOR_TYPE_RP ")"
+#define OPERATOR_TYPE_TILDE "~"
+#define OPERATOR_TYPE_ASTERISK "*"
+
 #include <iostream>
 #include <stdlib.h>
 #include <ctype.h>
