@@ -122,21 +122,23 @@ int mysql_cn_parser_parse(MYSQL_FTPARSER_PARAM *param) {
 
 				info = &bool_info;
 			}
-			param->mysql_add_word(param, tok, strlen(tok), info);
-			if(operator_type) {
-				std::cout << "Token [" << tok << "] has operator of " << operator_type << std::endl;
-			}
+			int ret = param->mysql_add_word(param, tok, strlen(tok), info);
 			switch(param->mode) {
 				case MYSQL_FTPARSER_SIMPLE_MODE: // Netural search mode
-					std::cout << "Got Token [" << tok << "] In SIMPLE Mode with length " << strlen(tok) << std::endl;
+					std::cout << "Got Token [" << tok << "] In SIMPLE Mode";
 					break;
 				case MYSQL_FTPARSER_WITH_STOPWORDS:
-					std::cout << "Got Token [" << tok << "] In WITH_STOPWORDS Mode with length " << strlen(tok) << std::endl;
+					std::cout << "Got Token [" << tok << "] In WITH_STOPWORDS Mode";
 					break;
 				case MYSQL_FTPARSER_FULL_BOOLEAN_INFO:
-					std::cout << "Got Token [" << tok << "] In FULL_BOOLEAN Mode with length " << strlen(tok) << std::endl;
+					std::cout << "Got Token [" << tok << "] In FULL_BOOLEAN Mode";
 					break;
 			}
+			if(operator_type) {
+				std::cout << " and has operator of " << operator_type;
+			}
+			std::cout << " with the result " << ret << " when adding it";
+			std::cout << std::endl;
 			operator_type = NULL; // Reset the operator type after the operation
 		}
 	}

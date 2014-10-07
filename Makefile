@@ -118,7 +118,7 @@ plugin_test:
 	@sudo /opt/local/share/mysql5/mysql/mysql.server restart
 test_sql:
 	@mysql -u root test < test/test.sql
-	@mysql -u root test -e 'select match(text) against("其他 -其他" in boolean mode), text from fulltext_test'
+	@mysql -u root test -e 'select match(text) against("其他" in boolean mode), text from fulltext_test'
 
 all: $(PROGRAM)
 
