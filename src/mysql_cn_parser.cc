@@ -160,7 +160,7 @@ int main(int argc, char *argv[]) {
 	Logger logger;
 
 	logger.log("Reading the testing file.");
-    std::istream *is = new std::ifstream(data, std::ifstream::in | std::ifstream::binary);
+    std::istream *is = new std::ifstream(data.c_str(), std::ifstream::in | std::ifstream::binary);
     if(! *is)
         return -1;
 

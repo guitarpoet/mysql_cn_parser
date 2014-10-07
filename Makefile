@@ -20,7 +20,7 @@ MY_CFLAGS =
 MY_LIBS   = -lmmseg
 
 # The pre-processor options used by the cpp (man cpp for more).
-CPPFLAGS  = -Wall -I/opt/local/include/mysql55/mysql -Wno-deprecated -DMYSQL_DYNAMIC_PLUGIN 
+CPPFLAGS  = -Wall -I/usr/include/mysql/ -I/opt/local/include/mysql55/mysql -Wno-deprecated -DMYSQL_DYNAMIC_PLUGIN 
 
 MYSQL_PLUGIN_FOLDER = /opt/local/lib/mysql55/plugin/
 
@@ -52,7 +52,7 @@ HDREXTS = .h .H .hh .hpp .HPP .h++ .hxx .hp
 # The pre-processor and compiler options.
 # Users can override those variables from the command line.
 CFLAGS  = -g -O2
-CXXFLAGS= -g -O2
+CXXFLAGS= -g -O2 -fPIC
 
 # The C program compiler.
 CC     = gcc

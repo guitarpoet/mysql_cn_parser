@@ -21,6 +21,7 @@
 #define OPERATOR_TYPE_ASTERISK "*"
 
 #include <iostream>
+#include <memory>
 #include <stdlib.h>
 #include <ctype.h>
 #include <iostream>
