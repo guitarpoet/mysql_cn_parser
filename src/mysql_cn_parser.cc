@@ -29,6 +29,7 @@ int mysql_cn_parser_deinit(MYSQL_FTPARSER_PARAM *param __attribute__((unused))) 
 }
 
 int mysql_cn_parser_parse(MYSQL_FTPARSER_PARAM *param) {
+	param->flags = MYSQL_FTFLAGS_NEED_COPY; // Since we just using 1 buffer to add indexes, so mysql need to copy the text.
     set_status("Tokenizing the string");
 	parser->logger->log("Tokenizing the string");
 
@@ -137,8 +138,7 @@ int mysql_cn_parser_parse(MYSQL_FTPARSER_PARAM *param) {
 			if(operator_type) {
 				std::cout << " and has operator of " << operator_type;
 			}
-			std::cout << " with the result " << ret << " when adding it";
-			std::cout << std::endl;
+			std::cout << " with the flag " << param->flags << std::endl;
 			operator_type = NULL; // Reset the operator type after the operation
 		}
 	}
