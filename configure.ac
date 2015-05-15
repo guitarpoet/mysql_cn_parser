@@ -63,7 +63,7 @@ fi
 CPPFLAGS="-I$MYSQL_INCDIR -I$OBABEL_INCDIR $CPPFLAGS"
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_CHECK_HEADER_STDBOOL
+#AC_CHECK_HEADER_STDBOOL #Disable this macro for autoconf version 2.63
 AC_C_INLINE
 AC_TYPE_SIZE_T
 
